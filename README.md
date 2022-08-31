@@ -29,3 +29,24 @@ Privacy information can be found at https://privacy.microsoft.com/en-us/
 
 Microsoft and any contributors reserve all other rights, whether under their respective copyrights, patents,
 or trademarks, whether by implication, estoppel or otherwise.
+
+## Build Docker Image
+
+- docker build -t reservationsystem .
+- docker image list
+- docker run -p 8080:80 -d --name reservations reservationsystem
+- docker ps -a
+- docker container stop reservations
+- docker rm reservations
+## Upload to Azure Container Registry
+
+- az group create --name azuredockerchallenge --location westus
+- az acr create --name dockerchallengeregistry --resource-group azuredockerchallenge --sku basic --admin-enabled true
+- docker login dockerchallengeregistry.azurecr.io
+- az acr credential show --name dockerchallengeregistry --resource-group azuredockerchallenge
+- docker tag reservationsystem dockerchallengeregistry.azurecr.io/reservationsystem:v2
+- docker push dockerchallengeregistry.azurecr.io/reservationsystem:v2
+- az acr repository list --name dockerchallengeregistry --resource-group azuredockerchallenge
+- az acr repository show --repository reservationsystem --name dockerchallengeregistry --resource-group azuredockerchallenge
+- az container create --resource-group azuredockerchallenge --name dockerchallengeinstance --image dockerchallengeregistry.azurecr.io/reservationsystem:v2 --dns-name-label dockerchallengednsname --registry-username dockerchallengeregistry --registry-password "l+hyb2djG5RIyEO+Tsmce3Owp4rY/p/m"
+- az container show --resource-group azuredockerchallenge --name dockerchallengeinstance --query ipAddress.fqdn
